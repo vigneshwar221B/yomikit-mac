@@ -12,7 +12,9 @@ import Combine
 
 /// A structure that contains the video data to render.
 struct CapturedFrame {
-    static let invalid = CapturedFrame(surface: nil, contentRect: .zero, contentScale: 0, scaleFactor: 0)
+    static var invalid: CapturedFrame {
+        CapturedFrame(surface: nil, contentRect: .zero, contentScale: 0, scaleFactor: 0)
+    }
 
     let surface: IOSurface?
     let contentRect: CGRect
@@ -30,6 +32,7 @@ class CaptureEngine: NSObject, @unchecked Sendable {
     private var streamOutput: CaptureEngineStreamOutput?
     private let videoSampleBufferQueue = DispatchQueue(label: "com.example.apple-samplecode.VideoSampleBufferQueue")
     private let audioSampleBufferQueue = DispatchQueue(label: "com.example.apple-samplecode.AudioSampleBufferQueue")
+    private let micSampleBufferQueue = DispatchQueue(label: "com.example.apple-samplecode.MicSampleBufferQueue")
     
     // Performs average and peak power calculations on the audio samples.
     private let powerMeter = PowerMeter()
@@ -53,6 +56,7 @@ class CaptureEngine: NSObject, @unchecked Sendable {
                 // Add a stream output to capture screen content.
                 try stream?.addStreamOutput(streamOutput, type: .screen, sampleHandlerQueue: videoSampleBufferQueue)
                 try stream?.addStreamOutput(streamOutput, type: .audio, sampleHandlerQueue: audioSampleBufferQueue)
+                try stream?.addStreamOutput(streamOutput, type: .microphone, sampleHandlerQueue: micSampleBufferQueue)
                 stream?.startCapture()
             } catch {
                 continuation.finish(throwing: error)
@@ -78,6 +82,15 @@ class CaptureEngine: NSObject, @unchecked Sendable {
         } catch {
             logger.error("Failed to update the stream session: \(String(describing: error))")
         }
+    }
+    
+    /// - Tag: Recording Output
+    func addRecordOutputToStream(_ recordingOutput: SCRecordingOutput) async throws {
+        try self.stream?.addRecordingOutput(recordingOutput)
+    }
+    
+    func stopRecordingOutputForStream(_ recordingOutput: SCRecordingOutput) throws {
+        try self.stream?.removeRecordingOutput(recordingOutput)
     }
 }
 
@@ -108,6 +121,8 @@ private class CaptureEngineStreamOutput: NSObject, SCStreamOutput, SCStreamDeleg
             capturedFrameHandler?(frame)
         case .audio:
             // Process audio as an AVAudioPCMBuffer for level calculation.
+            handleAudio(for: sampleBuffer)
+        case .microphone:
             handleAudio(for: sampleBuffer)
         @unknown default:
             fatalError("Encountered unknown stream output type: \(outputType)")

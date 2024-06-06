@@ -20,6 +20,7 @@ struct ConfigurationView: View {
     @ObservedObject var screenRecorder: ScreenRecorder
     @Binding var userStopped: Bool
     @State var showPickerSettingsView = false
+    @State private var isRecordingActive = false
     
     var body: some View {
         VStack {
@@ -59,6 +60,18 @@ struct ConfigurationView: View {
                             }
                         }
                     }
+                    
+                    VStack(alignment: .leading, spacing: verticalLabelSpacing) {
+                        Text("Display HDR")
+                        Picker("Select Preset", selection: $screenRecorder.selectedDynamicRangePreset) {
+                            Text("Default (None)")
+                                .tag(ScreenRecorder.DynamicRangePreset?.none)
+                            ForEach(ScreenRecorder.DynamicRangePreset.allCases, id: \.self) {
+                                Text($0.rawValue)
+                                    .tag(ScreenRecorder.DynamicRangePreset?.some($0))
+                            }
+                        }
+                    }
                 }
                 .labelsHidden()
                 
@@ -78,6 +91,7 @@ struct ConfigurationView: View {
                 
                 HeaderView("Audio")
                 
+                Toggle("Add mic output", isOn: $screenRecorder.isMicCaptureEnabled)
                 Toggle("Capture audio", isOn: $screenRecorder.isAudioCaptureEnabled)
                 Toggle("Exclude app audio", isOn: $screenRecorder.isAppAudioExcluded)
                     .disabled(screenRecorder.isAppExcluded)
@@ -100,20 +114,39 @@ struct ConfigurationView: View {
                 HeaderView("Content Picker")
                 Toggle("Activate Picker", isOn: $screenRecorder.isPickerActive)
                 Group {
-                    Button {
+                    Button("Picker Configuration", systemImage: "text.badge.plus", action: {
                         showPickerSettingsView = true
-                    } label: {
-                        Image(systemName: "text.badge.plus")
-                        Text("Picker Configuration")
-                    }
-                    Button {
-                        screenRecorder.presentPicker()
-                    } label: {
-                        Image(systemName: "sparkles.tv")
-                        Text("Present Picker")
-                    }
+                    })
+                    Button("Present Picker", systemImage: "sparkles.tv", action: screenRecorder.presentPicker)
                 }
                 .disabled(!screenRecorder.isPickerActive)
+                
+                // Screen recording section.
+                Spacer()
+                    .frame(height: 20)
+                
+                HeaderView("Record and Save Output")
+                HStack {
+                    Toggle("Add screen recording output", isOn: $screenRecorder.isRecordingStream)
+                    // Simple screen recording indicator
+                    VStack {
+                        if screenRecorder.isRecordingStream {
+                            Image(systemName: "circle.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .brightness(isRecordingActive ? 0.1: 0.0)
+                                .foregroundColor(.red)
+                                .onAppear() {
+                                    withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {
+                                        isRecordingActive = true
+                                    }
+                                }
+                        }
+                    }
+                    .frame(width: 10, height: 10)
+                }
+                Button("View Recordings", systemImage: "folder.fill", action: screenRecorder.openRecordingFolder)
+                
             }
             .padding()
             

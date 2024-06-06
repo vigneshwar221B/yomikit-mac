@@ -5,7 +5,7 @@ Abstract:
 A model object that provides the interface to capture screen content and system audio.
 */
 import Foundation
-import ScreenCaptureKit
+@preconcurrency import ScreenCaptureKit
 import Combine
 import OSLog
 import SwiftUI
@@ -23,6 +23,21 @@ class ScreenRecorder: NSObject,
     enum CaptureType {
         case display
         case window
+    }
+    
+    enum DynamicRangePreset: String, CaseIterable {
+        case localDisplayHDR = "Local Display HDR"
+        case canonicalDisplayHDR = "Canonical Display HDR"
+        
+        @available(macOS 15.0, *)
+        var scDynamicRangePreset: SCStreamConfiguration.Preset? {
+            switch self {
+            case .localDisplayHDR:
+                return SCStreamConfiguration.Preset.captureHDRStreamLocalDisplay
+            case .canonicalDisplayHDR:
+                return SCStreamConfiguration.Preset.captureHDRStreamCanonicalDisplay
+            }
+        }
     }
     
     private let logger = Logger()
@@ -65,6 +80,11 @@ class ScreenRecorder: NSObject,
     @Published var allowedPickingModes = SCContentSharingPickerMode() {
         didSet { updatePickerConfiguration() }
     }
+    
+    // MARK: - HDR Preset
+    @Published var selectedDynamicRangePreset: DynamicRangePreset? {
+        didSet { updateEngine() }
+    }
     @Published var contentSize = CGSize(width: 1, height: 1)
     private var scaleFactor: Int { Int(NSScreen.main?.backingScaleFactor ?? 2) }
     
@@ -106,11 +126,37 @@ class ScreenRecorder: NSObject,
             }
         }
     }
+    @Published var microphoneId: String?
+    @Published var isMicCaptureEnabled = false {
+        didSet {
+            if isMicCaptureEnabled {
+                addMicrophoneOutput()
+            } else {
+                removeMicrophoneOutput()
+            }
+            updateEngine()
+        }
+    }
+    @Published var isRecordingStream = false {
+        didSet {
+            if isRecordingStream {
+                try? initRecordingOutput()
+                Task {
+                    try await startRecordingOutput()
+                }
+            } else {
+                try? stopRecordingOutput()
+            }
+        }
+    }
     @Published var isAppAudioExcluded = false { didSet { updateEngine() } }
     @Published private(set) var audioLevelsProvider = AudioLevelsProvider()
     // A value that specifies how often to retrieve calculated audio levels.
     private let audioLevelRefreshRate: TimeInterval = 0.1
     private var audioMeterCancellable: AnyCancellable?
+    
+    private let recordingOutputPath: String? = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last
+    private var recordingOutput: SCRecordingOutput?
     
     // The object that manages the SCStream.
     private let captureEngine = CaptureEngine()
@@ -187,7 +233,15 @@ class ScreenRecorder: NSObject,
         guard isRunning else { return }
         await captureEngine.stopCapture()
         stopAudioMetering()
+        try? stopRecordingOutput()
+        removeMicrophoneOutput()
         isRunning = false
+    }
+    
+    func openRecordingFolder() {
+        if let recordingOutputPath = recordingOutputPath {
+            NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: recordingOutputPath)
+        }
     }
     
     private func startAudioMetering() {
@@ -200,6 +254,51 @@ class ScreenRecorder: NSObject,
     private func stopAudioMetering() {
         audioMeterCancellable?.cancel()
         audioLevelsProvider.audioLevels = AudioLevels.zero
+    }
+    
+    private func addMicrophoneOutput() {
+        streamConfiguration.captureMicrophone = true
+    }
+    private func removeMicrophoneOutput() {
+        streamConfiguration.captureMicrophone = false
+        streamConfiguration.microphoneCaptureDeviceID = nil
+    }
+    
+    private func initRecordingOutput() throws {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
+        let currentDateTime = dateFormatter.string(from: Date())
+        if let recordingOutputPath = recordingOutputPath {
+            let outputPath = "\(recordingOutputPath)/recorded_output_\(currentDateTime).mp4"
+            let outputURL = URL(fileURLWithPath: outputPath)
+            let recordingConfiguration = SCRecordingOutputConfiguration()
+            recordingConfiguration.outputURL = outputURL
+            guard let recordingOutput = (SCRecordingOutput(configuration: recordingConfiguration, delegate: self) as SCRecordingOutput?)
+            else {
+                throw SCScreenRecordingError.failedToStartRecording("Failed to init recording output!")
+            }
+            logger.log("Initialized recording output with URL \(outputURL)")
+            self.recordingOutput = recordingOutput
+        }
+    }
+    
+    private func startRecordingOutput() async throws {
+        guard let recordingOutput = self.recordingOutput else {
+            throw SCScreenRecordingError.failedToStartRecording("Recording output is empty!")
+        }
+        
+        try? await captureEngine.addRecordOutputToStream(recordingOutput)
+        logger.log("Added recording output \(String(describing: self.recordingOutput)) successfully to stream")
+        recordingOutputDidStartRecording(recordingOutput)
+    }
+    
+    private func stopRecordingOutput() throws {
+        if let recordingOutput = self.recordingOutput {
+            logger.log("Stopping recording output \(recordingOutput)")
+            try? captureEngine.stopRecordingOutputForStream(recordingOutput)
+            recordingOutputDidFinishRecording(recordingOutput)
+        }
+        self.recordingOutput = nil
     }
     
     /// - Tag: UpdateCaptureConfig
@@ -239,12 +338,12 @@ class ScreenRecorder: NSObject,
 
     nonisolated func contentSharingPicker(_ picker: SCContentSharingPicker, didUpdateWith filter: SCContentFilter, for stream: SCStream?) {
         Task { @MainActor in
-            logger.info("Picker updated with filter=\(filter) for stream=\(stream)")
             pickerContentFilter = filter
             shouldUsePickerFilter = true
             setPickerUpdate(true)
             updateEngine()
         }
+        logger.info("Picker updated with filter=\(filter) for stream=\(stream)")
     }
 
     nonisolated func contentSharingPickerStartDidFailWithError(_ error: Error) {
@@ -309,11 +408,16 @@ class ScreenRecorder: NSObject,
     
     private var streamConfiguration: SCStreamConfiguration {
         
-        let streamConfig = SCStreamConfiguration()
+        var streamConfig = SCStreamConfiguration()
+        
+        if let dynamicRangePreset = selectedDynamicRangePreset?.scDynamicRangePreset {
+            streamConfig = SCStreamConfiguration(preset: dynamicRangePreset)
+        }
         
         // Configure audio capture.
         streamConfig.capturesAudio = isAudioCaptureEnabled
         streamConfig.excludesCurrentProcessAudio = isAppAudioExcluded
+        streamConfig.captureMicrophone = isMicCaptureEnabled
         
         // Configure the display content width and height.
         if captureType == .display, let display = selectedDisplay {
@@ -392,4 +496,21 @@ extension SCDisplay {
     var displayName: String {
         "Display: \(width) x \(height)"
     }
+}
+
+extension ScreenRecorder: SCRecordingOutputDelegate {
+    // MARK: SCRecordingOutputDelegate
+    @available(macOS 15.0, *)
+    nonisolated func recordingOutputDidStartRecording(_ recordingOutput: SCRecordingOutput) {
+        logger.log("Recording output \(recordingOutput) did start recording")
+    }
+
+    @available(macOS 15.0, *)
+    nonisolated func recordingOutputDidFinishRecording(_ recordingOutput: SCRecordingOutput) {
+        logger.log("Recording output \(recordingOutput) did finish recording")
+    }
+}
+
+enum SCScreenRecordingError: Error {
+    case failedToStartRecording(String)
 }
