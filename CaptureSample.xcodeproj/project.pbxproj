@@ -62,7 +62,7 @@
 				7C6C99F1D4B6E3EBA3A7B7DF /* LICENSE.txt */,
 			);
 			name = LICENSE;
-			path = .;
+			path = "";
 			sourceTree = "<group>";
 		};
 		C41D1B1D2814BD230033613F /* Views */ = {

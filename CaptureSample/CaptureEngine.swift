@@ -11,7 +11,7 @@ import OSLog
 import Combine
 
 /// A structure that contains the video data to render.
-struct CapturedFrame {
+struct CapturedFrame: @unchecked Sendable {
     static var invalid: CapturedFrame {
         CapturedFrame(surface: nil, contentRect: .zero, contentScale: 0, scaleFactor: 0)
     }
@@ -41,7 +41,6 @@ class CaptureEngine: NSObject, @unchecked Sendable {
     // Store the the startCapture continuation, so that you can cancel it when you call stopCapture().
     private var continuation: AsyncThrowingStream<CapturedFrame, Error>.Continuation?
     
-    /// - Tag: StartCapture
     func startCapture(configuration: SCStreamConfiguration, filter: SCContentFilter) -> AsyncThrowingStream<CapturedFrame, Error> {
         AsyncThrowingStream<CapturedFrame, Error> { continuation in
             // The stream output object. Avoid reassigning it to a new object every time startCapture is called.
@@ -74,7 +73,6 @@ class CaptureEngine: NSObject, @unchecked Sendable {
         powerMeter.processSilence()
     }
     
-    /// - Tag: UpdateStreamConfiguration
     func update(configuration: SCStreamConfiguration, filter: SCContentFilter) async {
         do {
             try await stream?.updateConfiguration(configuration)
@@ -84,7 +82,6 @@ class CaptureEngine: NSObject, @unchecked Sendable {
         }
     }
     
-    /// - Tag: Recording Output
     func addRecordOutputToStream(_ recordingOutput: SCRecordingOutput) async throws {
         try self.stream?.addRecordingOutput(recordingOutput)
     }
@@ -107,7 +104,6 @@ private class CaptureEngineStreamOutput: NSObject, SCStreamOutput, SCStreamDeleg
         self.continuation = continuation
     }
     
-    /// - Tag: DidOutputSampleBuffer
     func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of outputType: SCStreamOutputType) {
         
         // Return early if the sample buffer is invalid.

@@ -99,7 +99,7 @@ class ScreenRecorder: NSObject,
     @Published private(set) var pickerUpdate: Bool = false // Update the running stream immediately with picker selection
     private var pickerContentFilter: SCContentFilter?
     private var shouldUsePickerFilter = false
-    /// - Tag: TogglePicker
+
     @Published var isPickerActive = false {
         didSet {
             if isPickerActive {
@@ -301,7 +301,6 @@ class ScreenRecorder: NSObject,
         self.recordingOutput = nil
     }
     
-    /// - Tag: UpdateCaptureConfig
     private func updateEngine() {
         guard isRunning else { return }
         Task {
@@ -331,7 +330,6 @@ class ScreenRecorder: NSObject,
         self.screenRecorderPicker.defaultConfiguration = pickerConfiguration
     }
 
-    /// - Tag: HandlePicker
     nonisolated func contentSharingPicker(_ picker: SCContentSharingPicker, didCancelFor stream: SCStream?) {
         logger.info("Picker canceled for stream \(stream)")
     }
@@ -373,12 +371,12 @@ class ScreenRecorder: NSObject,
         return config
     }
 
-    /// - Tag: UpdateFilter
     private var contentFilter: SCContentFilter {
         var filter: SCContentFilter
         switch captureType {
         case .display:
             guard let display = selectedDisplay else { fatalError("No display selected.") }
+            
             var excludedApps = [SCRunningApplication]()
             // If a user chooses to exclude the app from the stream,
             // exclude it by matching its bundle identifier.
@@ -393,7 +391,6 @@ class ScreenRecorder: NSObject,
                                      exceptingWindows: [])
         case .window:
             guard let window = selectedWindow else { fatalError("No window selected.") }
-            
             // Create a content filter that includes a single window.
             filter = SCContentFilter(desktopIndependentWindow: window)
         }
@@ -441,7 +438,6 @@ class ScreenRecorder: NSObject,
         return streamConfig
     }
     
-    /// - Tag: GetAvailableContent
     private func refreshAvailableContent() async {
         do {
             // Retrieve the available screen content to capture.
