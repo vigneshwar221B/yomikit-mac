@@ -14,6 +14,12 @@ https://github.com/user-attachments/assets/e03896f8-5320-4a0c-9f55-d9ab329e09c3
 - **WebSocket server** -- broadcasts recognized text on a configurable port for external tools (e.g. popup dictionaries, Anki, translation apps)
 - **Change detection** -- only outputs when text actually changes
 
+## Limitations
+
+- Vertical Japanese text is recognized, but when capturing a full manga page with multiple speech bubbles, the reading order of the output is not guaranteed.
+
+<img width="1028" height="713" alt="Screenshot 2026-04-25 at 5 24 28 PM" src="https://github.com/user-attachments/assets/3f897825-dfaa-4378-89eb-bdaf7cf6bc45" />
+
 ## Install
 
 Download the latest DMG from [Releases](https://github.com/vigneshwar221B/yomikit-mac/releases), open it, and drag YomiKit to Applications.
@@ -58,10 +64,6 @@ User selects region -> OverlayWindow (drag rect)
          NSPasteboard              WebSocketServer
          (auto-copy)              (NWListener broadcast)
 ```
-
-## Limitations
-
-- Vertical Japanese text (manga) is recognized, but when capturing a full manga page with multiple speech bubbles, the reading order of the output is not guaranteed.
 
 ## Requirements
 
