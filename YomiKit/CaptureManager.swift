@@ -24,7 +24,7 @@ class CaptureManager: ObservableObject {
 
     // MARK: - Sub-components
 
-    let webSocketServer = WebSocketServer()
+    var webSocketServer = WebSocketServer()
     private let textRecognizer = TextRecognizer()
     private let captureEngine = CaptureEngine()
 

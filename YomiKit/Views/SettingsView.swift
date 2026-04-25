@@ -4,6 +4,9 @@ import SwiftUI
 struct SettingsView: View {
 
     @ObservedObject var manager: CaptureManager
+    @State private var portText = "8765"
+    @State private var editingPort = false
+    @FocusState private var portFocused: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -48,6 +51,42 @@ struct SettingsView: View {
             // WebSocket
             HeaderView("WebSocket")
             HStack {
+                Text("Port")
+                    .foregroundColor(.secondary)
+                if editingPort && !manager.webSocketServer.isRunning {
+                    TextField("Port", text: $portText, onCommit: {
+                        if let p = UInt16(portText) {
+                            manager.webSocketServer.port = p
+                        }
+                        editingPort = false
+                    })
+                    .frame(width: 70)
+                    .textFieldStyle(.roundedBorder)
+                    .focused($portFocused)
+                    .onAppear { portFocused = true }
+                    .onChange(of: portFocused) {
+                        if !portFocused {
+                            if let p = UInt16(portText) {
+                                manager.webSocketServer.port = p
+                            }
+                            editingPort = false
+                        }
+                    }
+                } else {
+                    Text(String(manager.webSocketServer.port))
+                        .font(.system(.body, design: .monospaced))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(RoundedRectangle(cornerRadius: 4).stroke(Color.secondary.opacity(0.3)))
+                        .onTapGesture {
+                            if !manager.webSocketServer.isRunning {
+                                portText = String(manager.webSocketServer.port)
+                                editingPort = true
+                            }
+                        }
+                }
+            }
+            HStack {
                 Circle()
                     .fill(manager.webSocketServer.isRunning ? Color.green : Color.gray)
                     .frame(width: 8, height: 8)
@@ -75,6 +114,9 @@ struct SettingsView: View {
         }
         .padding()
         .background(MaterialView())
+        .onTapGesture {
+            NSApp.keyWindow?.makeFirstResponder(nil)
+        }
     }
 }
 
