@@ -29,7 +29,9 @@ ws = new WebSocket("ws://localhost:<port>");
 ws.onmessage = e => console.log(e.data);
 ```
 
-You can also use online texthooker pages like [Renji's Texthooker UI](https://renji-xd.github.io/texthooker-ui/). Point it at your WebSocket URL and recognized text will appear there automatically, ready for use with popup dictionaries like Yomitan.
+You can also use online texthooker pages like [Renji's Texthooker UI](https://renji-xd.github.io/texthooker-ui/)
+
+Point it at your WebSocket URL and recognized text will appear there automatically, ready for use with popup dictionaries like Yomitan.
 
 ## Architecture
 
