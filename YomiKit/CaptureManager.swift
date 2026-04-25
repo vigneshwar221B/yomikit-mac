@@ -204,7 +204,7 @@ class CaptureManager: ObservableObject {
         // Run OCR.
         do {
             let text = try await textRecognizer.recognize(image: cgImage)
-            guard !text.isEmpty, text != lastRecognizedText else { return }
+            guard !text.isEmpty, !textMatchesLast(text) else { return }
 
             lastRecognizedText = text
             textBlocks.append(TextBlock(text: text, timestamp: Date()))
@@ -222,5 +222,19 @@ class CaptureManager: ObservableObject {
         } catch {
             logger.error("OCR error: \(error.localizedDescription)")
         }
+    }
+
+    /// Fuzzy match to avoid duplicates from OCR jitter (punctuation/whitespace variations).
+    private func textMatchesLast(_ text: String) -> Bool {
+        if lastRecognizedText.isEmpty { return false }
+        return normalize(text) == normalize(lastRecognizedText)
+    }
+
+    private func normalize(_ text: String) -> String {
+        text.unicodeScalars.filter { scalar in
+            !CharacterSet.whitespacesAndNewlines.contains(scalar)
+            && !CharacterSet.punctuationCharacters.contains(scalar)
+            && !CharacterSet.symbols.contains(scalar)
+        }.map { String($0) }.joined()
     }
 }
