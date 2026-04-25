@@ -27,7 +27,7 @@
 		122776EC2A82BC6F0083737C /* PickerSettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PickerSettingsView.swift; sourceTree = "<group>"; };
 		7C6C99F1D4B6E3EBA3A7B7DF /* LICENSE.txt */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		8D89E0E7125AFE6B4E2E6500 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		9AEEB9169F5D7FC75E6B35A2 /* SampleCode.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = SampleCode.xcconfig; path = Configuration/SampleCode.xcconfig; sourceTree = "<group>"; };
+
 		C44093722816EC8800FB8386 /* Synth.aif */ = {isa = PBXFileReference; lastKnownFileType = file; path = Synth.aif; sourceTree = "<group>"; };
 		C44093742816EC9C00FB8386 /* WebSocketServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketServer.swift; sourceTree = "<group>"; };
 		C470F0802811C5CB00D29309 /* CaptureManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureManager.swift; sourceTree = "<group>"; };
@@ -90,7 +90,7 @@
 				8D89E0E7125AFE6B4E2E6500 /* README.md */,
 				C4B0DAA9276BA4460015082A /* YomiKit */,
 				C4B0DAA8276BA4460015082A /* Products */,
-				CFC39354E2BF335FE5D2CDFE /* Configuration */,
+
 				58C6EBE29CE5FC0542EA3228 /* LICENSE */,
 			);
 			sourceTree = "<group>";
@@ -129,14 +129,7 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
-		CFC39354E2BF335FE5D2CDFE /* Configuration */ = {
-			isa = PBXGroup;
-			children = (
-				9AEEB9169F5D7FC75E6B35A2 /* SampleCode.xcconfig */,
-			);
-			name = Configuration;
-			sourceTree = "<group>";
-		};
+
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -229,7 +222,7 @@
 /* Begin XCBuildConfiguration section */
 		C4B0DAB4276BA4480015082A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9AEEB9169F5D7FC75E6B35A2 /* SampleCode.xcconfig */;
+
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -292,7 +285,7 @@
 		};
 		C4B0DAB5276BA4480015082A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9AEEB9169F5D7FC75E6B35A2 /* SampleCode.xcconfig */;
+
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -348,7 +341,7 @@
 		};
 		C4B0DAB7276BA4480015082A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9AEEB9169F5D7FC75E6B35A2 /* SampleCode.xcconfig */;
+
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -373,7 +366,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.yomikit.app${SAMPLE_CODE_DISAMBIGUATOR}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.yomikit.app";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -384,7 +377,7 @@
 		};
 		C4B0DAB8276BA4480015082A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9AEEB9169F5D7FC75E6B35A2 /* SampleCode.xcconfig */;
+
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -409,7 +402,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.yomikit.app${SAMPLE_CODE_DISAMBIGUATOR}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.yomikit.app";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
