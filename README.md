@@ -2,14 +2,14 @@
 
 A native macOS screen text hooker, primarily designed for Japanese.
 
-Select a screen region, and YomiKit captures it periodically, runs OCR via Apple's Vision framework, detects text changes, and outputs via clipboard and/or a WebSocket server for external app consumption.
+Select a screen region, and YomiKit captures it periodically, runs OCR via Apple's VisionKit framework, detects text changes, and outputs via clipboard and/or a WebSocket server for external app consumption.
 
 https://github.com/user-attachments/assets/e03896f8-5320-4a0c-9f55-d9ab329e09c3
 
 ## Features
 
 - **Region selection** -- drag to select any area of the screen
-- **OCR** -- Vision framework with `.accurate` recognition, primarily for Japanese (also supports English, Chinese, and other Vision-supported languages)
+- **OCR** -- VisionKit framework with support for vertical and horizontal Japanese (also supports English, Korean, and Chinese)
 - **Auto-copy** -- recognized text is automatically copied to clipboard on change
 - **WebSocket server** -- broadcasts recognized text on a configurable port for external tools (e.g. popup dictionaries, Anki, translation apps)
 - **Change detection** -- only outputs when text actually changes
@@ -58,6 +58,10 @@ User selects region -> OverlayWindow (drag rect)
          NSPasteboard              WebSocketServer
          (auto-copy)              (NWListener broadcast)
 ```
+
+## Limitations
+
+- Vertical Japanese text (manga) is recognized, but when capturing a full manga page with multiple speech bubbles, the reading order of the output is not guaranteed.
 
 ## Requirements
 
