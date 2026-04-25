@@ -22,6 +22,7 @@
 		C4B0DAC0276BA4B50015082A /* CaptureEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4B0DABD276BA4B50015082A /* CaptureEngine.swift */; };
 		C4EB90D428108656006A595C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4EB90D328108656006A595C /* SettingsView.swift */; };
 		EE1D8C6C2F9CD4DC003F3016 /* glass_icon.icon in Resources */ = {isa = PBXBuildFile; fileRef = EE1D8C6B2F9CD4DB003F3016 /* glass_icon.icon */; };
+		EE2D9A012FA1B00000A1B001 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE2D9A002FA1B00000A1B001 /* AppSettings.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,6 +45,7 @@
 		C4B0DABD276BA4B50015082A /* CaptureEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptureEngine.swift; sourceTree = "<group>"; };
 		C4EB90D328108656006A595C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		EE1D8C6B2F9CD4DB003F3016 /* glass_icon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = glass_icon.icon; sourceTree = "<group>"; };
+		EE2D9A002FA1B00000A1B001 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,6 +109,7 @@
 		C4B0DAA9276BA4460015082A /* YomiKit */ = {
 			isa = PBXGroup;
 			children = (
+				EE2D9A002FA1B00000A1B001 /* AppSettings.swift */,
 				C470F0802811C5CB00D29309 /* CaptureManager.swift */,
 				C4B0DABD276BA4B50015082A /* CaptureEngine.swift */,
 				C471DFF92809F440001D24C9 /* TextRecognizer.swift */,
@@ -215,6 +218,7 @@
 				C4729DA52821BFAD00AAC477 /* MaterialView.swift in Sources */,
 				C4B0DABE276BA4B50015082A /* ContentView.swift in Sources */,
 				C471DFFB2809F440001D24C9 /* TextRecognizer.swift in Sources */,
+				EE2D9A012FA1B00000A1B001 /* AppSettings.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,8 +1,19 @@
 import SwiftUI
+import SwiftData
 
-struct ContentView: View { 
+struct ContentView: View {
 
     @StateObject private var manager = CaptureManager()
+    @Environment(\.modelContext) private var modelContext
+    @Query private var savedSettings: [AppSettings]
+
+    private var settings: AppSettings {
+        if let existing = savedSettings.first { return existing }
+        let new = AppSettings()
+        modelContext.insert(new)
+        return new
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             // Status bar
@@ -25,6 +36,21 @@ struct ContentView: View {
             }
         }
         .navigationTitle("YomiKit")
+        .onAppear {
+            manager.loadSettings(settings)
+        }
+        .onChange(of: manager.selectedRegion) {
+            manager.saveSettings(to: settings)
+        }
+        .onChange(of: manager.autoCopyToClipboard) {
+            manager.saveSettings(to: settings)
+        }
+        .onChange(of: manager.webSocketServer.port) {
+            manager.saveSettings(to: settings)
+        }
+        .onChange(of: manager.webSocketServer.isRunning) {
+            manager.saveSettings(to: settings)
+        }
     }
 
     // MARK: - Sub-views

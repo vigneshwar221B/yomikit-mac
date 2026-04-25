@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 @main
 struct YomiKitApp: App {
@@ -7,5 +8,6 @@ struct YomiKitApp: App {
             ContentView()
                 .frame(minWidth: 480, minHeight: 400)
         }
+        .modelContainer(for: AppSettings.self)
     }
 }

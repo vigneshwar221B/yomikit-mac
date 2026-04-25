@@ -224,6 +224,24 @@ class CaptureManager: ObservableObject {
         }
     }
 
+    // MARK: - Settings Persistence
+
+    func loadSettings(_ settings: AppSettings) {
+        selectedRegion = settings.region
+        autoCopyToClipboard = settings.autoCopyToClipboard
+        webSocketServer.port = settings.wsPortUInt16
+        if settings.wsServerEnabled {
+            webSocketServer.start()
+        }
+    }
+
+    func saveSettings(to settings: AppSettings) {
+        settings.region = selectedRegion
+        settings.autoCopyToClipboard = autoCopyToClipboard
+        settings.wsPort = Int(webSocketServer.port)
+        settings.wsServerEnabled = webSocketServer.isRunning
+    }
+
     /// Fuzzy match to avoid duplicates from OCR jitter (punctuation/whitespace variations).
     private func textMatchesLast(_ text: String) -> Bool {
         if lastRecognizedText.isEmpty { return false }
