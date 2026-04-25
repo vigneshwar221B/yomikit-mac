@@ -35,6 +35,7 @@ struct ContentView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
+        .focusedObject(manager)
         .navigationTitle("YomiKit")
         .onAppear {
             manager.loadSettings(settings)
