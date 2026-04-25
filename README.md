@@ -14,9 +14,13 @@ https://github.com/user-attachments/assets/e03896f8-5320-4a0c-9f55-d9ab329e09c3
 - **WebSocket server** -- broadcasts recognized text on a configurable port for external tools (e.g. popup dictionaries, Anki, translation apps)
 - **Change detection** -- only outputs when text actually changes
 
+## Install
+
+Download the latest DMG from [Releases](https://github.com/vigneshwar221B/yomikit-mac/releases), open it, and drag YomiKit to Applications.
+
 ## Usage
 
-1. Build and run in Xcode (requires macOS 15.0+)
+1. Launch YomiKit (requires macOS 15.0+)
 2. Grant screen recording permission when prompted
 3. Click **Select Region** and drag a rectangle over text you want to capture
 4. Click **Start** -- OCR'd text appears in the display area
@@ -58,7 +62,6 @@ User selects region -> OverlayWindow (drag rect)
 ## Requirements
 
 - macOS 15.0+
-- Xcode 16+
 - Screen recording permission
 
 ## License
