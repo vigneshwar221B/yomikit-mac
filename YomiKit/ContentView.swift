@@ -49,9 +49,19 @@ struct ContentView: View {
 
     private var textDisplay: some View {
         VStack(spacing: 0) {
-            CapturePreviewView(region: manager.selectedRegion)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.top, 6)
+            HStack {
+                CapturePreviewView(region: manager.selectedRegion)
+                Spacer()
+                if !manager.textBlocks.isEmpty {
+                    Button("Clear") {
+                        manager.textBlocks.removeAll()
+                    }
+                    .buttonStyle(.borderless)
+                    .foregroundColor(.secondary)
+                    .padding(.trailing, 12)
+                }
+            }
+            .padding(.top, 6)
 
             Divider()
                 .padding(.vertical, 4)
