@@ -9,7 +9,7 @@ Select a screen region, and YomiKit captures it periodically, runs OCR via Apple
 - **Region selection** -- drag to select any area of the screen
 - **OCR** -- Vision framework with `.accurate` recognition, primarily for Japanese (also supports English, Chinese, and other Vision-supported languages)
 - **Auto-copy** -- recognized text is automatically copied to clipboard on change
-- **WebSocket server** -- broadcasts recognized text on port 8765 for external tools (e.g. popup dictionaries, Anki, translation apps)
+- **WebSocket server** -- broadcasts recognized text on a configurable port for external tools (e.g. popup dictionaries, Anki, translation apps)
 - **Change detection** -- only outputs when text actually changes
 
 ## Usage
@@ -25,9 +25,11 @@ Select a screen region, and YomiKit captures it periodically, runs OCR via Apple
 Start the WebSocket server from the settings panel, then connect from any client:
 
 ```js
-ws = new WebSocket("ws://localhost:8765");
+ws = new WebSocket("ws://localhost:<port>");
 ws.onmessage = e => console.log(e.data);
 ```
+
+You can also use online texthooker pages like [texthooker-ui](https://renji-xd.github.io/texthooker-ui/) -- just point it at your WebSocket URL and recognized text will appear there automatically, ready for use with popup dictionaries like Yomitan.
 
 ## Architecture
 
