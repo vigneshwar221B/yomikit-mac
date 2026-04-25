@@ -17,6 +17,7 @@ class OverlayWindow: NSWindow {
         self.backgroundColor = .clear
         self.hasShadow = false
         self.ignoresMouseEvents = false
+        self.isReleasedWhenClosed = false
         self.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
     }
 }

@@ -27,6 +27,8 @@ class CaptureManager: ObservableObject {
 
     /// The selected capture region in NSScreen coordinates (bottom-left origin).
     @Published var selectedRegion: CGRect?
+    /// The screen the region was selected on.
+    private var selectedScreen: NSScreen?
 
     // MARK: - Sub-components
 
@@ -39,6 +41,7 @@ class CaptureManager: ObservableObject {
     private var availableDisplays = [SCDisplay]()
     private var availableApps = [SCRunningApplication]()
     private var lastRecognizedText = ""
+    private var regionOverlays = [OverlayWindow]()
     private var captureTask: Task<Void, Never>?
     private var wsCancellable: AnyCancellable?
 
@@ -64,36 +67,55 @@ class CaptureManager: ObservableObject {
 
     // MARK: - Region Selection
 
-    /// Shows a fullscreen transparent overlay for the user to drag-select a region.
+    /// Shows a fullscreen transparent overlay on every screen for the user to drag-select a region.
     func selectRegion() {
-        guard let screen = NSScreen.main else { return }
+        closeRegionOverlays()
 
-        let overlay = OverlayWindow(screen: screen)
-        let selectorView = RegionSelectorNSView()
+        for screen in NSScreen.screens {
+            let overlay = OverlayWindow(screen: screen)
+            let selectorView = RegionSelectorNSView()
 
-        selectorView.onRegionSelected = { [weak self] rect in
-            Task { @MainActor in
-                self?.selectedRegion = rect
-                overlay.close()
+            selectorView.onRegionSelected = { [weak self] rect in
+                Task { @MainActor in
+                    self?.selectedRegion = rect
+                    self?.selectedScreen = screen
+                    self?.closeRegionOverlays()
+                }
             }
-        }
-        selectorView.onCancelled = {
-            overlay.close()
+            selectorView.onCancelled = { [weak self] in
+                Task { @MainActor in
+                    self?.closeRegionOverlays()
+                }
+            }
+
+            overlay.contentView = selectorView
+            overlay.makeKeyAndOrderFront(nil)
+            regionOverlays.append(overlay)
         }
 
-        overlay.contentView = selectorView
-        overlay.makeKeyAndOrderFront(nil)
-        overlay.makeFirstResponder(selectorView)
+        // Focus the overlay on the main screen.
+        if let main = regionOverlays.first {
+            main.makeKey()
+            main.makeFirstResponder(main.contentView)
+        }
+    }
+
+    private func closeRegionOverlays() {
+        for w in regionOverlays { w.close() }
+        regionOverlays.removeAll()
     }
 
     // MARK: - Start / Stop
 
     func start() async {
         guard !isRunning else { return }
-        guard let screen = NSScreen.main else { return }
+
+        let screen = selectedScreen ?? NSScreen.main ?? NSScreen.screens.first
+        guard let screen else { return }
 
         // Default to full screen if no region selected.
-        let region = selectedRegion ?? screen.frame
+        // selectedRegion is in view-local coords (0-based); screen.frame has global origin.
+        let region = selectedRegion ?? CGRect(origin: .zero, size: screen.frame.size)
 
         // Refresh available content.
         do {
@@ -106,12 +128,17 @@ class CaptureManager: ObservableObject {
             return
         }
 
-        guard let display = availableDisplays.first else {
+        // Match the SCDisplay to the NSScreen by CGDirectDisplayID.
+        let screenDisplayID = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID
+        let display = availableDisplays.first(where: { $0.displayID == screenDisplayID })
+                      ?? availableDisplays.first
+        guard let display else {
             statusMessage = "No display found"
             return
         }
 
-        // Convert NSScreen coords (bottom-left origin) to SCK coords (top-left origin).
+        // Region coords are already in view-local space (0-based).
+        // Convert to SCK coords (top-left origin).
         let displayHeight = CGFloat(display.height)
         let sckRect = CGRect(x: region.origin.x,
                              y: displayHeight - region.origin.y - region.height,
