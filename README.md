@@ -4,6 +4,8 @@ A native macOS screen text hooker, primarily designed for Japanese.
 
 Select a screen region, and YomiKit captures it periodically, runs OCR via Apple's Vision framework, detects text changes, and outputs via clipboard and/or a WebSocket server for external app consumption.
 
+https://github.com/user-attachments/assets/e03896f8-5320-4a0c-9f55-d9ab329e09c3
+
 ## Features
 
 - **Region selection** -- drag to select any area of the screen
