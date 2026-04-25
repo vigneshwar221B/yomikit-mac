@@ -20,6 +20,12 @@ https://github.com/user-attachments/assets/e03896f8-5320-4a0c-9f55-d9ab329e09c3
 
 <img width="1028" height="713" alt="Screenshot 2026-04-25 at 5 24 28 PM" src="https://github.com/user-attachments/assets/3f897825-dfaa-4378-89eb-bdaf7cf6bc45" />
 
+## Requirements
+
+- macOS 15.0+
+- Apple Silicon (M1 or later)
+- Screen recording permission
+
 ## Install
 
 Download the latest DMG from [Releases](https://github.com/vigneshwar221B/yomikit-mac/releases), open it, and drag YomiKit to Applications.
@@ -64,11 +70,6 @@ User selects region -> OverlayWindow (drag rect)
          NSPasteboard              WebSocketServer
          (auto-copy)              (NWListener broadcast)
 ```
-
-## Requirements
-
-- macOS 15.0+
-- Screen recording permission
 
 ## License
 
