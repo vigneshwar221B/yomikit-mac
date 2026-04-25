@@ -34,6 +34,14 @@ class CaptureManager: ObservableObject {
     private var availableApps = [SCRunningApplication]()
     private var lastRecognizedText = ""
     private var captureTask: Task<Void, Never>?
+    private var wsCancellable: AnyCancellable?
+
+    init() {
+        // Forward WebSocketServer changes so SwiftUI updates.
+        wsCancellable = webSocketServer.objectWillChange.sink { [weak self] _ in
+            self?.objectWillChange.send()
+        }
+    }
 
     // MARK: - Permission
 
@@ -76,11 +84,10 @@ class CaptureManager: ObservableObject {
 
     func start() async {
         guard !isRunning else { return }
-        guard let region = selectedRegion else {
-            statusMessage = "Select a region first"
-            return
-        }
         guard let screen = NSScreen.main else { return }
+
+        // Default to full screen if no region selected.
+        let region = selectedRegion ?? screen.frame
 
         // Refresh available content.
         do {

@@ -31,7 +31,7 @@ struct SettingsView: View {
                 } label: {
                     Label("Start", systemImage: "play.fill")
                 }
-                .disabled(manager.isRunning || manager.selectedRegion == nil)
+                .disabled(manager.isRunning)
 
                 Button {
                     Task { await manager.stop() }
