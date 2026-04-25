@@ -1,5 +1,5 @@
 import Foundation
-import VisionKit
+@preconcurrency import VisionKit
 import CoreImage
 
 /// Performs OCR on CGImages using VisionKit's ImageAnalyzer.
