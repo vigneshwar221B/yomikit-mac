@@ -56,15 +56,42 @@ struct ContentView: View {
             Divider()
                 .padding(.vertical, 4)
 
-            ScrollView {
-                Text(manager.recognizedText.isEmpty ? "Recognized text will appear here..." : manager.recognizedText)
-                    .font(.system(.body))
-                    .foregroundColor(manager.recognizedText.isEmpty ? .secondary : .primary)
-                    .textSelection(.enabled)
-                    .frame(maxWidth: .infinity, alignment: .topLeading)
-                    .padding(12)
+            ScrollViewReader { proxy in
+                ScrollView {
+                    if manager.textBlocks.isEmpty {
+                        Text("Recognized text will appear here...")
+                            .font(.system(.body))
+                            .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .topLeading)
+                            .padding(12)
+                    } else {
+                        LazyVStack(alignment: .leading, spacing: 0) {
+                            ForEach(manager.textBlocks) { block in
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(block.timestamp, format: .dateTime.hour().minute().second())
+                                        .font(.system(.caption2, design: .monospaced))
+                                        .foregroundColor(.secondary)
+                                    Text(block.text)
+                                        .font(.system(.body))
+                                        .textSelection(.enabled)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .topLeading)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .id(block.id)
+
+                                Divider()
+                            }
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .onChange(of: manager.textBlocks.count) {
+                    if let last = manager.textBlocks.last {
+                        proxy.scrollTo(last.id, anchor: .bottom)
+                    }
+                }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 }

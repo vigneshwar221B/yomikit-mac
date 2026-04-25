@@ -5,6 +5,12 @@ import OSLog
 import SwiftUI
 import AppKit
 
+struct TextBlock: Identifiable {
+    let id = UUID()
+    let text: String
+    let timestamp: Date
+}
+
 /// The main coordinator for YomiKit.
 /// Manages region selection, screen capture, OCR, clipboard output, and WebSocket broadcast.
 @MainActor
@@ -15,7 +21,7 @@ class CaptureManager: ObservableObject {
     // MARK: - Published State
 
     @Published var isRunning = false
-    @Published var recognizedText = ""
+    @Published var textBlocks: [TextBlock] = []
     @Published var statusMessage = "Idle"
     @Published var autoCopyToClipboard = true
 
@@ -174,7 +180,7 @@ class CaptureManager: ObservableObject {
             guard !text.isEmpty, text != lastRecognizedText else { return }
 
             lastRecognizedText = text
-            recognizedText = text
+            textBlocks.append(TextBlock(text: text, timestamp: Date()))
 
             // Auto-copy to clipboard.
             if autoCopyToClipboard {
