@@ -26,29 +26,9 @@ struct SettingsView: View {
 
             Divider()
 
-            // Capture controls
-            HeaderView("Capture")
-            HStack(spacing: 12) {
-                Button {
-                    Task { await manager.start() }
-                } label: {
-                    Label("Start", systemImage: "play.fill")
-                }
-                .disabled(manager.isRunning)
-
-                Button {
-                    Task { await manager.stop() }
-                } label: {
-                    Label("Stop", systemImage: "stop.fill")
-                }
-                .disabled(!manager.isRunning)
-            }
-
+            // Settings
             Toggle("Auto-copy to clipboard", isOn: $manager.autoCopyToClipboard)
 
-            Divider()
-
-            // WebSocket
             HeaderView("WebSocket")
             HStack {
                 Text("Port")
@@ -86,31 +66,52 @@ struct SettingsView: View {
                         }
                 }
             }
-            HStack {
-                Circle()
-                    .fill(manager.webSocketServer.isRunning ? Color.green : Color.gray)
-                    .frame(width: 8, height: 8)
-                if manager.webSocketServer.isRunning {
-                    Text(":\(manager.webSocketServer.port)  \(manager.webSocketServer.clientCount) client\(manager.webSocketServer.clientCount == 1 ? "" : "s")")
-                        .font(.system(.body, design: .monospaced))
-                } else {
-                    Text("Stopped")
+            if manager.webSocketServer.isRunning {
+                HStack {
+                    Circle()
+                        .fill(Color.green)
+                        .frame(width: 8, height: 8)
+                    Text(":\(String(manager.webSocketServer.port))  \(String(manager.webSocketServer.clientCount)) client\(manager.webSocketServer.clientCount == 1 ? "" : "s")")
+                        .font(.system(.caption, design: .monospaced))
                         .foregroundColor(.secondary)
                 }
             }
-            HStack(spacing: 12) {
-                Button("Start Server") {
-                    manager.webSocketServer.start()
-                }
-                .disabled(manager.webSocketServer.isRunning)
-
-                Button("Stop Server") {
-                    manager.webSocketServer.stop()
-                }
-                .disabled(!manager.webSocketServer.isRunning)
-            }
 
             Spacer()
+
+            // Capture toggle
+            Button {
+                Task {
+                    if manager.isRunning {
+                        await manager.stop()
+                    } else {
+                        await manager.start()
+                    }
+                }
+            } label: {
+                Label(manager.isRunning ? "Stop Capture" : "Start Capture",
+                      systemImage: manager.isRunning ? "stop.fill" : "play.fill")
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 4)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(manager.isRunning ? .red : .green)
+
+            // WebSocket toggle
+            Button {
+                if manager.webSocketServer.isRunning {
+                    manager.webSocketServer.stop()
+                } else {
+                    manager.webSocketServer.start()
+                }
+            } label: {
+                Label(manager.webSocketServer.isRunning ? "Stop Server" : "Start Server",
+                      systemImage: manager.webSocketServer.isRunning ? "xmark.circle.fill" : "antenna.radiowaves.left.and.right")
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 4)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(manager.webSocketServer.isRunning ? .red : .green)
         }
         .padding()
         .background(MaterialView())

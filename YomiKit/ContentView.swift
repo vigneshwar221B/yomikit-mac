@@ -4,6 +4,7 @@ import SwiftData
 struct ContentView: View {
 
     @StateObject private var manager = CaptureManager()
+    @AppStorage("showStatusBar") private var showStatusBar = true
     @Environment(\.modelContext) private var modelContext
     @Query private var savedSettings: [AppSettings]
 
@@ -16,14 +17,15 @@ struct ContentView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Status bar
-            statusBar
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(Color(nsColor: .controlBackgroundColor))
+            if showStatusBar {
+                statusBar
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color(nsColor: .controlBackgroundColor))
 
-            Divider()
+                Divider()
+            }
 
             // Main content: settings on left, text display on right
             HSplitView {
@@ -67,7 +69,7 @@ struct ContentView: View {
             Spacer()
 
             if manager.webSocketServer.isRunning {
-                Text("WS :\(manager.webSocketServer.port)  \(manager.webSocketServer.clientCount) client\(manager.webSocketServer.clientCount == 1 ? "" : "s")")
+                Text("WS :\(String(manager.webSocketServer.port))  \(String(manager.webSocketServer.clientCount)) client\(manager.webSocketServer.clientCount == 1 ? "" : "s")")
                     .font(.system(.caption, design: .monospaced))
                     .foregroundColor(.secondary)
             }

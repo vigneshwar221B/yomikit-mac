@@ -4,6 +4,7 @@ import SwiftData
 @main
 struct YomiKitApp: App {
     @FocusedObject private var manager: CaptureManager?
+    @AppStorage("showStatusBar") private var showStatusBar = true
 
     var body: some Scene {
         WindowGroup {
@@ -57,8 +58,11 @@ struct YomiKitApp: App {
             CommandGroup(replacing: .pasteboard) { }
             CommandGroup(replacing: .textEditing) { }
 
-            // Remove View menu
-            CommandGroup(replacing: .toolbar) { }
+            // View menu — just the status bar toggle
+            CommandGroup(replacing: .toolbar) {
+                Toggle("Status Bar", isOn: $showStatusBar)
+                    .keyboardShortcut("/", modifiers: .command)
+            }
             CommandGroup(replacing: .sidebar) { }
         }
     }
