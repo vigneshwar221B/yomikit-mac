@@ -11,6 +11,8 @@ https://github.com/user-attachments/assets/e03896f8-5320-4a0c-9f55-d9ab329e09c3
 - **Region selection** -- drag to select any area of the screen
 - **OCR** -- VisionKit framework with support for vertical and horizontal Japanese (also supports English, Korean, and Chinese)
 - **Auto-copy** -- recognized text is automatically copied to clipboard on change
+- **Quick Scan** -- one-shot capture for a single snapshot without starting continuous capture
+- **Text history** -- recognized text blocks are persisted across sessions; right-click any block to copy, resend via WebSocket, or delete
 - **WebSocket server** -- broadcasts recognized text on a configurable port for external tools (e.g. popup dictionaries, Anki, translation apps)
 - **Change detection** -- only outputs when text actually changes
 
