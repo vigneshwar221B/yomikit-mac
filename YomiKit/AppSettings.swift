@@ -10,6 +10,7 @@ final class AppSettings {
     var autoCopyToClipboard: Bool = true
     var wsPort: Int = 8765
     var wsServerEnabled: Bool = false
+    var filters: [String] = []
 
     init() {}
 

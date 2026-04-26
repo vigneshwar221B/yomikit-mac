@@ -32,6 +32,7 @@ class CaptureManager: ObservableObject {
     @Published var textBlocks: [TextBlock] = []
     @Published var statusMessage = "Idle"
     @Published var autoCopyToClipboard = true
+    @Published var filters: [String] = []
 
     /// The selected capture region in NSScreen coordinates (bottom-left origin).
     @Published var selectedRegion: CGRect?
@@ -241,7 +242,8 @@ class CaptureManager: ObservableObject {
                                                          height: Int(region.height) * scaleFactor))
 
             let cgImage = try await SCScreenshotManager.captureImage(contentFilter: filter, configuration: config)
-            let text = try await textRecognizer.recognize(image: cgImage)
+            let raw = try await textRecognizer.recognize(image: cgImage)
+            let text = applyFilters(raw)
             guard !text.isEmpty else { return }
 
             let block = TextBlock(text: text, timestamp: Date())
@@ -271,10 +273,12 @@ class CaptureManager: ObservableObject {
 
         // Run OCR.
         do {
-            let text = try await textRecognizer.recognize(image: cgImage)
-            guard !text.isEmpty, !textMatchesLast(text) else { return }
+            let raw = try await textRecognizer.recognize(image: cgImage)
+            guard !raw.isEmpty, !textMatchesLast(raw) else { return }
+            let text = applyFilters(raw)
+            guard !text.isEmpty else { return }
 
-            lastRecognizedText = text
+            lastRecognizedText = raw
             let block = TextBlock(text: text, timestamp: Date())
             textBlocks.append(block)
             persist(block)
@@ -332,6 +336,7 @@ class CaptureManager: ObservableObject {
     func loadSettings(_ settings: AppSettings) {
         selectedRegion = settings.region
         autoCopyToClipboard = settings.autoCopyToClipboard
+        filters = settings.filters
         webSocketServer.port = settings.wsPortUInt16
         if settings.wsServerEnabled {
             webSocketServer.start()
@@ -341,8 +346,17 @@ class CaptureManager: ObservableObject {
     func saveSettings(to settings: AppSettings) {
         settings.region = selectedRegion
         settings.autoCopyToClipboard = autoCopyToClipboard
+        settings.filters = filters
         settings.wsPort = Int(webSocketServer.port)
         settings.wsServerEnabled = webSocketServer.isRunning
+    }
+
+    private func applyFilters(_ text: String) -> String {
+        filters.filter { !$0.isEmpty }.reduce(text) { result, pattern in
+            guard let regex = try? NSRegularExpression(pattern: pattern) else { return result }
+            let range = NSRange(result.startIndex..., in: result)
+            return regex.stringByReplacingMatches(in: result, range: range, withTemplate: "")
+        }
     }
 
     /// Fuzzy match to avoid duplicates from OCR jitter (punctuation/whitespace variations).

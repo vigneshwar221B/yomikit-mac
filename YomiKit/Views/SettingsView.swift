@@ -7,6 +7,7 @@ struct SettingsView: View {
     @State private var portText = "8765"
     @State private var editingPort = false
     @FocusState private var portFocused: Bool
+    @State private var showFiltersEditor = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -100,6 +101,30 @@ struct SettingsView: View {
                 }
             }
 
+            Divider()
+
+            // Filters
+            HStack {
+                HeaderView("Filters")
+                if !manager.filters.isEmpty {
+                    Text("\(manager.filters.count)")
+                        .font(.system(.caption2, design: .monospaced))
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 2)
+                        .background(Color.accentColor.opacity(0.2), in: .capsule)
+                }
+                Spacer()
+            }
+            Button {
+                showFiltersEditor = true
+            } label: {
+                Label("Configure Filters", systemImage: "line.3.horizontal.decrease")
+                    .frame(maxWidth: .infinity)
+            }
+            .sheet(isPresented: $showFiltersEditor) {
+                FiltersEditorView(filters: $manager.filters)
+            }
+
             Spacer()
 
             if #available(macOS 26.0, *) {
@@ -147,6 +172,7 @@ struct SettingsView: View {
             NSApp.keyWindow?.makeFirstResponder(nil)
         }
     }
+
 }
 
 // MARK: - macOS 26 Glass helpers
@@ -231,6 +257,47 @@ private struct PortBadgeStyle: ViewModifier {
             content.modifier(GlassPortBadgeModifier())
         } else {
             content.background(RoundedRectangle(cornerRadius: 4).stroke(Color.secondary.opacity(0.3)))
+        }
+    }
+}
+
+// MARK: - Filters editor
+
+struct FiltersEditorView: View {
+    @Binding var filters: [String]
+    @Environment(\.dismiss) private var dismiss
+    @State private var text = ""
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Filters")
+                .font(.headline)
+            Text("One filter per line. Supports regex.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            TextEditor(text: $text)
+                .font(.system(.body, design: .monospaced))
+                .frame(minWidth: 340, minHeight: 200)
+
+            HStack {
+                Spacer()
+                Button("Cancel") { dismiss() }
+                    .keyboardShortcut(.escape, modifiers: [])
+                Button("Save") {
+                    filters = text
+                        .components(separatedBy: .newlines)
+                        .map { $0.trimmingCharacters(in: .whitespaces) }
+                        .filter { !$0.isEmpty }
+                    dismiss()
+                }
+                .keyboardShortcut(.return, modifiers: .command)
+                .buttonStyle(.borderedProminent)
+            }
+        }
+        .padding()
+        .onAppear {
+            text = filters.joined(separator: "\n")
         }
     }
 }

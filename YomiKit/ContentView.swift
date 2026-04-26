@@ -72,6 +72,9 @@ struct ContentView: View {
         .onChange(of: manager.webSocketServer.isRunning) {
             manager.saveSettings(to: settings)
         }
+        .onChange(of: manager.filters) {
+            manager.saveSettings(to: settings)
+        }
     }
 
     // MARK: - Sub-views

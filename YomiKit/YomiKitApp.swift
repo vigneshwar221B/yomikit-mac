@@ -61,10 +61,6 @@ struct YomiKitApp: App {
                 .disabled(!(manager?.webSocketServer.isRunning ?? false))
             }
 
-            // Remove Edit menu
-            CommandGroup(replacing: .undoRedo) { }
-            CommandGroup(replacing: .pasteboard) { }
-            CommandGroup(replacing: .textEditing) { }
 
             // View menu — just the status bar toggle
             CommandGroup(replacing: .toolbar) {
