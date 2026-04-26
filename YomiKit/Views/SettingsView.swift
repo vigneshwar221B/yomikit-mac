@@ -52,7 +52,7 @@ struct SettingsView: View {
             Divider()
 
             // Settings
-            Toggle("Send to clipboard", isOn: $manager.autoCopyToClipboard)
+            Toggle("Clipboard sync", isOn: $manager.autoCopyToClipboard)
                 .toggleStyle(.switch)
 
             // Filters
@@ -78,7 +78,6 @@ struct SettingsView: View {
 
             Divider()
 
-            HeaderView("WebSocket")
             if #available(macOS 26.0, *) {
                 GlassWebSocketStatus(
                     port: manager.webSocketServer.port,
@@ -86,6 +85,7 @@ struct SettingsView: View {
                     clientCount: manager.webSocketServer.clientCount
                 ) { manager.webSocketServer.port = $0 }
             } else {
+                HeaderView("WebSocket")
                 HStack {
                     Image(systemName: "antenna.radiowaves.left.and.right")
                         .foregroundColor(.secondary)
@@ -319,42 +319,15 @@ private struct GlassWebSocketStatus: View {
     @FocusState private var focused: Bool
 
     var body: some View {
-        GlassEffectContainer {
-            HStack(spacing: 10) {
-                Image(systemName: "antenna.radiowaves.left.and.right")
-                    .foregroundStyle(isRunning ? Color(red: 0.2, green: 0.7, blue: 0.4) : .secondary)
-
-                if editing {
-                    Text("Port")
-                        .font(.system(.caption, design: .monospaced))
-                        .foregroundStyle(.secondary)
-                    TextField("", text: $portText)
-                        .frame(width: 55)
-                        .textFieldStyle(.plain)
-                        .font(.system(.body, design: .monospaced))
-                        .focused($focused)
-                        .onAppear { focused = true }
-                        .onSubmit { commit() }
-                        .onChange(of: portText) { portText = portText.filter(\.isNumber) }
-                        .onChange(of: focused) { if !focused { commit() } }
-                        .onExitCommand { editing = false }
-                } else {
-                    Text("ws://localhost:\(String(port))")
-                        .font(.system(.caption, design: .monospaced))
-                }
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("WebSocket")
+                    .font(.headline)
+                    .foregroundColor(.secondary)
 
                 Spacer()
 
-                if isRunning {
-                    HStack(spacing: 5) {
-                        Circle()
-                            .fill(Color(red: 0.2, green: 0.7, blue: 0.4))
-                            .frame(width: 6, height: 6)
-                        Text("\(clientCount) client\(clientCount == 1 ? "" : "s")")
-                            .font(.system(.caption2, design: .monospaced))
-                            .foregroundStyle(.secondary)
-                    }
-                } else if !editing {
+                if !editing {
                     Button {
                         NSPasteboard.general.clearContents()
                         NSPasteboard.general.setString("ws://localhost:\(port)", forType: .string)
@@ -374,23 +347,65 @@ private struct GlassWebSocketStatus: View {
                     .help("Copy URL")
                     .onHover { hoveringCopy = $0 }
 
-                    Button {
-                        portText = String(port)
-                        editing = true
-                    } label: {
-                        Image(systemName: "gearshape")
-                            .font(.system(.body))
-                            .foregroundStyle(hoveringEdit ? .primary : .secondary)
-                            .scaleEffect(hoveringEdit ? 1.15 : 1.0)
-                            .animation(.easeInOut(duration: 0.15), value: hoveringEdit)
+                    if !isRunning {
+                        Button {
+                            portText = String(port)
+                            editing = true
+                        } label: {
+                            Image(systemName: "gearshape")
+                                .font(.system(.body))
+                                .foregroundStyle(hoveringEdit ? .primary : .secondary)
+                                .scaleEffect(hoveringEdit ? 1.15 : 1.0)
+                                .animation(.easeInOut(duration: 0.15), value: hoveringEdit)
+                        }
+                        .buttonStyle(.plain)
+                        .help("Edit port")
+                        .onHover { hoveringEdit = $0 }
                     }
-                    .buttonStyle(.plain)
-                    .help("Edit port")
-                    .onHover { hoveringEdit = $0 }
                 }
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 10)
+
+            GlassEffectContainer {
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 10) {
+                        Image(systemName: "antenna.radiowaves.left.and.right")
+                            .foregroundStyle(isRunning ? Color(red: 0.2, green: 0.7, blue: 0.4) : .secondary)
+
+                        if editing {
+                            Text("Port")
+                                .font(.system(.body, design: .monospaced))
+                                .foregroundStyle(.secondary)
+                            TextField("", text: $portText)
+                                .frame(width: 55)
+                                .textFieldStyle(.plain)
+                                .font(.system(.body, design: .monospaced))
+                                .focused($focused)
+                                .onAppear { focused = true }
+                                .onSubmit { commit() }
+                                .onChange(of: portText) { portText = portText.filter(\.isNumber) }
+                                .onChange(of: focused) { if !focused { commit() } }
+                                .onExitCommand { editing = false }
+                        } else {
+                            Text("ws://localhost:\(String(port))")
+                                .font(.system(.body, design: .monospaced))
+                                .lineLimit(1)
+                        }
+                    }
+
+                    if isRunning {
+                        HStack(spacing: 5) {
+                            Circle()
+                                .fill(Color(red: 0.2, green: 0.7, blue: 0.4))
+                                .frame(width: 6, height: 6)
+                            Text("\(clientCount) client\(clientCount == 1 ? "" : "s") connected")
+                                .font(.system(.caption, design: .monospaced))
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 10)
+            }
         }
     }
 

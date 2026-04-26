@@ -169,7 +169,7 @@ class CaptureManager: ObservableObject {
         let config = SCStreamConfiguration()
         config.width = Int(region.width) * scaleFactor
         config.height = Int(region.height) * scaleFactor
-        config.minimumFrameInterval = CMTime(value: 1, timescale: 2) // 2 FPS
+        config.minimumFrameInterval = CMTime(value: 2, timescale: 3) // 1.5 FPS
         config.queueDepth = 3
         config.showsCursor = false
         config.capturesAudio = false
