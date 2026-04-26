@@ -90,7 +90,7 @@ struct ContentView: View {
             Spacer()
 
             if manager.webSocketServer.isRunning {
-                Text("WS :\(String(manager.webSocketServer.port))  \(String(manager.webSocketServer.clientCount)) client\(manager.webSocketServer.clientCount == 1 ? "" : "s")")
+                Text("ws://localhost:\(String(manager.webSocketServer.port))  \(String(manager.webSocketServer.clientCount)) client\(manager.webSocketServer.clientCount == 1 ? "" : "s")")
                     .font(.system(.caption, design: .monospaced))
                     .foregroundColor(.secondary)
             }
