@@ -2,6 +2,8 @@
 
 A native macOS app that captures and recognizes text from your screen using OCR, primarily designed for Japanese. Lightweight at under 5 MB — no Electron, no runtime dependencies, just native Swift.
 
+## How it works
+
 Select a screen region, and YomiKit captures it periodically, runs OCR via Apple's VisionKit framework, detects text changes, and outputs via clipboard and/or a WebSocket server for external app consumption.
 
 https://github.com/user-attachments/assets/e03896f8-5320-4a0c-9f55-d9ab329e09c3
@@ -24,7 +26,7 @@ https://github.com/user-attachments/assets/e03896f8-5320-4a0c-9f55-d9ab329e09c3
 
 ## Requirements
 
-- macOS 15.0+
+- macOS 15.0 or later (macOS 26 recommended for the modern Liquid Glass UI)
 - Apple Silicon (M1 or later)
 - Screen recording permission
 
