@@ -23,6 +23,7 @@
 		C4EB90D428108656006A595C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4EB90D328108656006A595C /* SettingsView.swift */; };
 		EE1D8C6C2F9CD4DC003F3016 /* YomiKit.icon in Resources */ = {isa = PBXBuildFile; fileRef = EE1D8C6B2F9CD4DB003F3016 /* YomiKit.icon */; };
 		EE2D9A012FA1B00000A1B001 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE2D9A002FA1B00000A1B001 /* AppSettings.swift */; };
+		EE2D9A022FA1B00000A1B002 /* TextBlockRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE2D9A032FA1B00000A1B003 /* TextBlockRecord.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,6 +47,7 @@
 		C4EB90D328108656006A595C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		EE1D8C6B2F9CD4DB003F3016 /* YomiKit.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = YomiKit.icon; sourceTree = "<group>"; };
 		EE2D9A002FA1B00000A1B001 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		EE2D9A032FA1B00000A1B003 /* TextBlockRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextBlockRecord.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +112,7 @@
 			isa = PBXGroup;
 			children = (
 				EE2D9A002FA1B00000A1B001 /* AppSettings.swift */,
+				EE2D9A032FA1B00000A1B003 /* TextBlockRecord.swift */,
 				C470F0802811C5CB00D29309 /* CaptureManager.swift */,
 				C4B0DABD276BA4B50015082A /* CaptureEngine.swift */,
 				C471DFF92809F440001D24C9 /* TextRecognizer.swift */,
@@ -219,6 +222,7 @@
 				C4B0DABE276BA4B50015082A /* ContentView.swift in Sources */,
 				C471DFFB2809F440001D24C9 /* TextRecognizer.swift in Sources */,
 				EE2D9A012FA1B00000A1B001 /* AppSettings.swift in Sources */,
+				EE2D9A022FA1B00000A1B002 /* TextBlockRecord.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

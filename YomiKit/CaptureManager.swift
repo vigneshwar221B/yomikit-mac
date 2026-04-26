@@ -4,11 +4,18 @@ import Combine
 import OSLog
 import SwiftUI
 import AppKit
+import SwiftData
 
 struct TextBlock: Identifiable {
-    let id = UUID()
+    let id: UUID
     let text: String
     let timestamp: Date
+
+    init(id: UUID = UUID(), text: String, timestamp: Date) {
+        self.id = id
+        self.text = text
+        self.timestamp = timestamp
+    }
 }
 
 /// The main coordinator for YomiKit.
@@ -36,6 +43,7 @@ class CaptureManager: ObservableObject {
     var webSocketServer = WebSocketServer()
     private let textRecognizer = TextRecognizer()
     private let captureEngine = CaptureEngine()
+    private var modelContext: ModelContext?
 
     // MARK: - Private State
 
@@ -236,7 +244,9 @@ class CaptureManager: ObservableObject {
             let text = try await textRecognizer.recognize(image: cgImage)
             guard !text.isEmpty else { return }
 
-            textBlocks.append(TextBlock(text: text, timestamp: Date()))
+            let block = TextBlock(text: text, timestamp: Date())
+            textBlocks.append(block)
+            persist(block)
 
             if autoCopyToClipboard {
                 NSPasteboard.general.clearContents()
@@ -265,7 +275,9 @@ class CaptureManager: ObservableObject {
             guard !text.isEmpty, !textMatchesLast(text) else { return }
 
             lastRecognizedText = text
-            textBlocks.append(TextBlock(text: text, timestamp: Date()))
+            let block = TextBlock(text: text, timestamp: Date())
+            textBlocks.append(block)
+            persist(block)
 
             // Auto-copy to clipboard.
             if autoCopyToClipboard {
@@ -283,6 +295,39 @@ class CaptureManager: ObservableObject {
     }
 
     // MARK: - Settings Persistence
+
+    // MARK: - Persistence
+
+    func setModelContext(_ context: ModelContext) {
+        modelContext = context
+        let descriptor = FetchDescriptor<TextBlockRecord>(sortBy: [SortDescriptor(\.timestamp)])
+        if let records = try? context.fetch(descriptor) {
+            textBlocks = records.map { TextBlock(id: $0.id, text: $0.text, timestamp: $0.timestamp) }
+        }
+    }
+
+    func deleteTextBlock(id: UUID) {
+        textBlocks.removeAll { $0.id == id }
+        guard let ctx = modelContext else { return }
+        let descriptor = FetchDescriptor<TextBlockRecord>(predicate: #Predicate { $0.id == id })
+        if let record = try? ctx.fetch(descriptor).first {
+            ctx.delete(record)
+        }
+    }
+
+    func clearTextBlocks() {
+        textBlocks.removeAll()
+        guard let ctx = modelContext else { return }
+        let descriptor = FetchDescriptor<TextBlockRecord>()
+        if let records = try? ctx.fetch(descriptor) {
+            records.forEach { ctx.delete($0) }
+        }
+    }
+
+    private func persist(_ block: TextBlock) {
+        guard let ctx = modelContext else { return }
+        ctx.insert(TextBlockRecord(id: block.id, text: block.text, timestamp: block.timestamp))
+    }
 
     func loadSettings(_ settings: AppSettings) {
         selectedRegion = settings.region

@@ -58,6 +58,7 @@ struct ContentView: View {
         }
         .onAppear {
             manager.loadSettings(settings)
+            manager.setModelContext(modelContext)
         }
         .onChange(of: manager.selectedRegion) {
             manager.saveSettings(to: settings)
@@ -100,7 +101,7 @@ struct ContentView: View {
                 Spacer()
                 if !manager.textBlocks.isEmpty {
                     Button("Clear") {
-                        manager.textBlocks.removeAll()
+                        manager.clearTextBlocks()
                     }
                     .buttonStyle(.borderless)
                     .foregroundColor(.secondary)
@@ -145,7 +146,7 @@ struct ContentView: View {
                                             .disabled(!manager.webSocketServer.isRunning)
                                             Divider()
                                             Button(role: .destructive) {
-                                                manager.textBlocks.removeAll { $0.id == block.id }
+                                                manager.deleteTextBlock(id: block.id)
                                             } label: {
                                                 Label("Delete", systemImage: "trash")
                                             }

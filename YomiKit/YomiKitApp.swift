@@ -11,11 +11,11 @@ struct YomiKitApp: App {
             ContentView()
                 .frame(minWidth: 480, minHeight: 400)
         }
-        .modelContainer(for: AppSettings.self)
+        .modelContainer(for: [AppSettings.self, TextBlockRecord.self])
         .commands {
             CommandGroup(replacing: .newItem) {
                 Button("Clear Text") {
-                    manager?.textBlocks.removeAll()
+                    manager?.clearTextBlocks()
                 }
                 .keyboardShortcut("k", modifiers: .command)
                 .disabled(manager?.textBlocks.isEmpty ?? true)
