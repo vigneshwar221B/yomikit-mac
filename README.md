@@ -6,7 +6,7 @@ Under 5 MB. No Electron. No runtime dependencies.
 
 ## How it works
 
-Pick a region anywhere on your screen. YomiKit captures it at 2 fps using SCStream, runs OCR via Apple VisionKit, and emits text only when it changes.
+Pick a region anywhere on your screen. YomiKit continuously captures it, runs OCR with Apple VisionKit, and outputs text only when it changes
 
 https://github.com/user-attachments/assets/3d0cfc2a-8d5a-4ef9-b820-abe4f9bfadab
 
@@ -15,7 +15,7 @@ https://github.com/user-attachments/assets/3d0cfc2a-8d5a-4ef9-b820-abe4f9bfadab
 - Region capture - select any area across screens, including external monitors
 - OCR (VisionKit) - Japanese (vertical + horizontal) plus English, Korean, Chinese
 - Quick scan - one-shot capture
-- Filters - ustom text filters using regex
+- Filters - Custom text filters using regex
 - Clipboard sync - auto-copy on change with built-in deduplication
 - WebSocket - real-time text stream for external tools
 
@@ -23,7 +23,7 @@ https://github.com/user-attachments/assets/3d0cfc2a-8d5a-4ef9-b820-abe4f9bfadab
 
 Works best for anime, games, scanned text and Youtube.
 
-Manga is hit or miss. Vertical text is recognized, but full-page captures with multiple bubbles can mess up reading order.
+Manga is partially supported. Vertical text is recognized, but full-page captures with multiple bubbles can mess up reading order.
 
 <img width="1255" height="718" alt="Screenshot 2026-04-26 at 11 20 34 AM" src="https://github.com/user-attachments/assets/3b03d95c-9b5e-440a-9184-b13bf9d7ea81" />
 
