@@ -137,6 +137,18 @@ struct ContentView: View {
                                             } label: {
                                                 Label("Copy", systemImage: "doc.on.doc")
                                             }
+                                            Button {
+                                                manager.webSocketServer.broadcast(block.text)
+                                            } label: {
+                                                Label("Send via WebSocket", systemImage: "antenna.radiowaves.left.and.right")
+                                            }
+                                            .disabled(!manager.webSocketServer.isRunning)
+                                            Divider()
+                                            Button(role: .destructive) {
+                                                manager.textBlocks.removeAll { $0.id == block.id }
+                                            } label: {
+                                                Label("Delete", systemImage: "trash")
+                                            }
                                         }
                                 }
                                 .frame(maxWidth: .infinity, alignment: .topLeading)
@@ -150,6 +162,18 @@ struct ContentView: View {
                                         NSPasteboard.general.setString(block.text, forType: .string)
                                     } label: {
                                         Label("Copy", systemImage: "doc.on.doc")
+                                    }
+                                    Button {
+                                        manager.webSocketServer.broadcast(block.text)
+                                    } label: {
+                                        Label("Send via WebSocket", systemImage: "antenna.radiowaves.left.and.right")
+                                    }
+                                    .disabled(!manager.webSocketServer.isRunning)
+                                    Divider()
+                                    Button(role: .destructive) {
+                                        manager.textBlocks.removeAll { $0.id == block.id }
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
                                     }
                                 }
 
