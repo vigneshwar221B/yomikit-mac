@@ -1,6 +1,6 @@
 # YomiKit
 
-Native macOS text hooker with OCR, optimized for Japanese.
+A native macOS app that captures and recognizes text from your screen using OCR, primarily designed for reading Japanese.
 
 Under 5 MB. No Electron. No runtime dependencies.
 
