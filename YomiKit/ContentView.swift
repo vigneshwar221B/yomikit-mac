@@ -5,6 +5,7 @@ struct ContentView: View {
 
     @StateObject private var manager = CaptureManager()
     @AppStorage("showStatusBar") private var showStatusBar = true
+    @AppStorage("showSidebar") private var showSidebar = true
     @Environment(\.modelContext) private var modelContext
     @Query private var savedSettings: [AppSettings]
 
@@ -28,17 +29,33 @@ struct ContentView: View {
             }
 
             // Main content: settings on left, text display on right
-            HSplitView {
-                SettingsView(manager: manager)
-                    .frame(minWidth: 220, idealWidth: 240, maxWidth: 280)
+            HStack(spacing: 0) {
+                if showSidebar {
+                    SettingsView(manager: manager)
+                        .frame(width: 240)
+                        .transition(.move(edge: .leading))
 
-                // Recognized text area
+                    Divider()
+                }
+
                 textDisplay
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
+            .animation(.easeInOut(duration: 0.2), value: showSidebar)
         }
         .focusedObject(manager)
         .navigationTitle("YomiKit")
+        .toolbar {
+            ToolbarItem(placement: .navigation) {
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        showSidebar.toggle()
+                    }
+                } label: {
+                    Image(systemName: "sidebar.left")
+                }
+            }
+        }
         .onAppear {
             manager.loadSettings(settings)
         }
