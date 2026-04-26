@@ -1,6 +1,6 @@
 # YomiKit
 
-A native macOS app that captures and recognizes text from your screen using OCR, primarily designed for Japanese.
+A native macOS app that captures and recognizes text from your screen using OCR, primarily designed for Japanese. Lightweight at under 5 MB — no Electron, no runtime dependencies, just native Swift.
 
 Select a screen region, and YomiKit captures it periodically, runs OCR via Apple's VisionKit framework, detects text changes, and outputs via clipboard and/or a WebSocket server for external app consumption.
 
