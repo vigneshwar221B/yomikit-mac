@@ -130,11 +130,28 @@ struct ContentView: View {
                                     Text(block.text)
                                         .font(.system(.body))
                                         .textSelection(.enabled)
+                                        .contextMenu {
+                                            Button {
+                                                NSPasteboard.general.clearContents()
+                                                NSPasteboard.general.setString(block.text, forType: .string)
+                                            } label: {
+                                                Label("Copy", systemImage: "doc.on.doc")
+                                            }
+                                        }
                                 }
                                 .frame(maxWidth: .infinity, alignment: .topLeading)
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 8)
+                                .contentShape(Rectangle())
                                 .id(block.id)
+                                .contextMenu {
+                                    Button {
+                                        NSPasteboard.general.clearContents()
+                                        NSPasteboard.general.setString(block.text, forType: .string)
+                                    } label: {
+                                        Label("Copy", systemImage: "doc.on.doc")
+                                    }
+                                }
 
                                 Divider()
                             }
