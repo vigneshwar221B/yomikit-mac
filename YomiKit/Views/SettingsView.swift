@@ -14,16 +14,7 @@ struct SettingsView: View {
             // Region selection
             HeaderView("Region")
             if #available(macOS 26.0, *) {
-                GlassEffectContainer {
-                    Button {
-                        manager.selectRegion()
-                    } label: {
-                        Label("Select Region", systemImage: "plus.rectangle.on.rectangle")
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 6)
-                    }
-                    .buttonStyle(.glass)
-                }
+                GlassSelectRegionButton { manager.selectRegion() }
             } else {
                 Button {
                     manager.selectRegion()
@@ -40,17 +31,8 @@ struct SettingsView: View {
             }
 
             if #available(macOS 26.0, *) {
-                GlassEffectContainer {
-                    Button {
-                        Task { await manager.quickScan() }
-                    } label: {
-                        Label(manager.isScanning ? "Scanning…" : "Quick Scan",
-                              systemImage: manager.isScanning ? "rays" : "viewfinder")
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 6)
-                    }
-                    .buttonStyle(.glass)
-                    .disabled(manager.isScanning)
+                GlassQuickScanButton(isScanning: manager.isScanning) {
+                    Task { await manager.quickScan() }
                 }
             } else {
                 Button {
@@ -121,35 +103,18 @@ struct SettingsView: View {
             Spacer()
 
             if #available(macOS 26.0, *) {
-                GlassEffectContainer {
-                    VStack(spacing: 8) {
-                        Button {
-                            Task {
-                                if manager.isRunning { await manager.stop() } else { await manager.start() }
-                            }
-                        } label: {
-                            Label(manager.isRunning ? "Stop Capture" : "Start Capture",
-                                  systemImage: manager.isRunning ? "stop.fill" : "play.fill")
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 4)
-                                .foregroundStyle(.white)
+                GlassActionButtons(
+                    isRunning: manager.isRunning,
+                    wsRunning: manager.webSocketServer.isRunning,
+                    onCaptureToggle: {
+                        Task {
+                            if manager.isRunning { await manager.stop() } else { await manager.start() }
                         }
-                        .buttonStyle(.glassProminent)
-                        .tint(manager.isRunning ? .red : Color(red: 0.2, green: 0.7, blue: 0.4))
-
-                        Button {
-                            if manager.webSocketServer.isRunning { manager.webSocketServer.stop() } else { manager.webSocketServer.start() }
-                        } label: {
-                            Label(manager.webSocketServer.isRunning ? "Stop Server" : "Start Server",
-                                  systemImage: manager.webSocketServer.isRunning ? "xmark.circle.fill" : "antenna.radiowaves.left.and.right")
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 4)
-                                .foregroundStyle(.white)
-                        }
-                        .buttonStyle(.glassProminent)
-                        .tint(manager.webSocketServer.isRunning ? .red : Color(red: 0.2, green: 0.7, blue: 0.4))
+                    },
+                    onWSToggle: {
+                        if manager.webSocketServer.isRunning { manager.webSocketServer.stop() } else { manager.webSocketServer.start() }
                     }
-                }
+                )
             } else {
                 Button {
                     Task {
@@ -184,17 +149,94 @@ struct SettingsView: View {
     }
 }
 
+// MARK: - macOS 26 Glass helpers
+
+@available(macOS 26.0, *)
+private struct GlassSelectRegionButton: View {
+    let action: () -> Void
+    var body: some View {
+        GlassEffectContainer {
+            Button { action() } label: {
+                Label("Select Region", systemImage: "plus.rectangle.on.rectangle")
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 6)
+            }
+            .buttonStyle(.glass)
+        }
+    }
+}
+
+@available(macOS 26.0, *)
+private struct GlassQuickScanButton: View {
+    let isScanning: Bool
+    let action: () -> Void
+    var body: some View {
+        GlassEffectContainer {
+            Button { action() } label: {
+                Label(isScanning ? "Scanning…" : "Quick Scan",
+                      systemImage: isScanning ? "rays" : "viewfinder")
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 6)
+            }
+            .buttonStyle(.glass)
+            .disabled(isScanning)
+        }
+    }
+}
+
+@available(macOS 26.0, *)
+private struct GlassActionButtons: View {
+    let isRunning: Bool
+    let wsRunning: Bool
+    let onCaptureToggle: () -> Void
+    let onWSToggle: () -> Void
+
+    var body: some View {
+        GlassEffectContainer {
+            VStack(spacing: 8) {
+                Button { onCaptureToggle() } label: {
+                    Label(isRunning ? "Stop Capture" : "Start Capture",
+                          systemImage: isRunning ? "stop.fill" : "play.fill")
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 4)
+                        .foregroundStyle(.white)
+                }
+                .buttonStyle(.glassProminent)
+                .tint(isRunning ? .red : Color(red: 0.2, green: 0.7, blue: 0.4))
+
+                Button { onWSToggle() } label: {
+                    Label(wsRunning ? "Stop Server" : "Start Server",
+                          systemImage: wsRunning ? "xmark.circle.fill" : "antenna.radiowaves.left.and.right")
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 4)
+                        .foregroundStyle(.white)
+                }
+                .buttonStyle(.glassProminent)
+                .tint(wsRunning ? .red : Color(red: 0.2, green: 0.7, blue: 0.4))
+            }
+        }
+    }
+}
+
+@available(macOS 26.0, *)
+private struct GlassPortBadgeModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content.glassEffect(in: .rect(cornerRadius: 6))
+    }
+}
+
 private struct PortBadgeStyle: ViewModifier {
     func body(content: Content) -> some View {
         if #available(macOS 26.0, *) {
-            content.glassEffect(in: .rect(cornerRadius: 6))
+            content.modifier(GlassPortBadgeModifier())
         } else {
             content.background(RoundedRectangle(cornerRadius: 4).stroke(Color.secondary.opacity(0.3)))
         }
     }
 }
 
-/// A styled section header.
+// MARK: - Section header
+
 struct HeaderView: View {
     private let title: String
     init(_ title: String) { self.title = title }
