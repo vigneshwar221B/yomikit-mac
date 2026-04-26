@@ -103,6 +103,7 @@ class CaptureManager: ObservableObject {
     private func closeRegionOverlays() {
         for w in regionOverlays { w.close() }
         regionOverlays.removeAll()
+        NSCursor.arrow.set()
     }
 
     // MARK: - Start / Stop

@@ -46,17 +46,9 @@ class RegionSelectorNSView: NSView {
         ))
     }
 
-    override func mouseEntered(with event: NSEvent) {
-        NSCursor.crosshair.set()
-    }
-
-    override func mouseMoved(with event: NSEvent) {
-        NSCursor.crosshair.set()
-    }
-
-    override func mouseExited(with event: NSEvent) {
-        NSCursor.arrow.set()
-    }
+    override func mouseEntered(with event: NSEvent) { NSCursor.crosshair.set() }
+    override func mouseMoved(with event: NSEvent)   { NSCursor.crosshair.set() }
+    override func mouseExited(with event: NSEvent)  { NSCursor.arrow.set() }
 
     override func mouseDown(with event: NSEvent) {
         dragStart = convert(event.locationInWindow, from: nil)
@@ -85,7 +77,6 @@ class RegionSelectorNSView: NSView {
     }
 
     override func keyDown(with event: NSEvent) {
-        // Escape cancels
         if event.keyCode == 53 {
             onCancelled?()
         }
