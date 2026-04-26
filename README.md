@@ -6,7 +6,7 @@ A native macOS app that captures and recognizes text from your screen using OCR,
 
 Select a screen region, and YomiKit captures it periodically, runs OCR via Apple's VisionKit framework, detects text changes, and outputs via clipboard and/or a WebSocket server for external app consumption.
 
-https://github.com/user-attachments/assets/e03896f8-5320-4a0c-9f55-d9ab329e09c3
+https://github.com/user-attachments/assets/3d0cfc2a-8d5a-4ef9-b820-abe4f9bfadab
 
 ## Features
 
@@ -22,7 +22,7 @@ https://github.com/user-attachments/assets/e03896f8-5320-4a0c-9f55-d9ab329e09c3
 
 - Works well for anime, games, YouTube playthroughs, and scanned books. Not ideal for manga -- vertical Japanese text is recognized, but when capturing a full page with multiple speech bubbles, the reading order of the output is not guaranteed.
 
-<img width="1123" height="663" alt="Screenshot 2026-04-26 at 7 52 39 AM" src="https://github.com/user-attachments/assets/6035946e-5cbe-4e64-ad14-8672ac803e3c" />
+<img width="1255" height="718" alt="Screenshot 2026-04-26 at 11 20 34 AM" src="https://github.com/user-attachments/assets/3b03d95c-9b5e-440a-9184-b13bf9d7ea81" />
 
 ## Requirements
 
