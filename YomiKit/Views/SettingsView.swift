@@ -39,6 +39,31 @@ struct SettingsView: View {
                     .foregroundColor(.secondary)
             }
 
+            if #available(macOS 26.0, *) {
+                GlassEffectContainer {
+                    Button {
+                        Task { await manager.quickScan() }
+                    } label: {
+                        Label(manager.isScanning ? "Scanning…" : "Quick Scan",
+                              systemImage: manager.isScanning ? "rays" : "viewfinder")
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 6)
+                    }
+                    .buttonStyle(.glass)
+                    .disabled(manager.isScanning)
+                }
+            } else {
+                Button {
+                    Task { await manager.quickScan() }
+                } label: {
+                    Label(manager.isScanning ? "Scanning…" : "Quick Scan",
+                          systemImage: manager.isScanning ? "rays" : "viewfinder")
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 6)
+                }
+                .disabled(manager.isScanning)
+            }
+
             Divider()
 
             // Settings

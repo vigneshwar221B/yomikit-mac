@@ -28,6 +28,14 @@ struct YomiKitApp: App {
 
                 Divider()
 
+                Button("Quick Scan") {
+                    Task { await manager?.quickScan() }
+                }
+                .keyboardShortcut("g", modifiers: .command)
+                .disabled(manager?.isScanning ?? false)
+
+                Divider()
+
                 Button("Start") {
                     Task { await manager?.start() }
                 }

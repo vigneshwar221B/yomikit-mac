@@ -21,6 +21,7 @@ class CaptureManager: ObservableObject {
     // MARK: - Published State
 
     @Published var isRunning = false
+    @Published var isScanning = false
     @Published var textBlocks: [TextBlock] = []
     @Published var statusMessage = "Idle"
     @Published var autoCopyToClipboard = true
@@ -192,6 +193,62 @@ class CaptureManager: ObservableObject {
         await captureEngine.stopCapture()
         isRunning = false
         statusMessage = "Stopped"
+    }
+
+    // MARK: - Quick Scan
+
+    func quickScan() async {
+        guard !isScanning else { return }
+        let screen = selectedScreen ?? NSScreen.main ?? NSScreen.screens.first
+        guard let screen else { return }
+
+        let region = selectedRegion ?? CGRect(origin: .zero, size: screen.frame.size)
+
+        isScanning = true
+        defer { isScanning = false }
+
+        do {
+            let content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true)
+            let screenDisplayID = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID
+            let display = content.displays.first(where: { $0.displayID == screenDisplayID }) ?? content.displays.first
+            guard let display else { return }
+
+            let sckRect = CGRect(x: region.origin.x,
+                                 y: CGFloat(display.height) - region.origin.y - region.height,
+                                 width: region.width,
+                                 height: region.height)
+
+            let excludedApps = content.applications.filter { Bundle.main.bundleIdentifier == $0.bundleIdentifier }
+            let filter = SCContentFilter(display: display, excludingApplications: excludedApps, exceptingWindows: [])
+
+            let scaleFactor = Int(screen.backingScaleFactor)
+            let config = SCStreamConfiguration()
+            config.width = Int(region.width) * scaleFactor
+            config.height = Int(region.height) * scaleFactor
+            config.showsCursor = false
+            config.capturesAudio = false
+            config.sourceRect = sckRect
+            config.destinationRect = CGRect(origin: .zero,
+                                            size: CGSize(width: Int(region.width) * scaleFactor,
+                                                         height: Int(region.height) * scaleFactor))
+
+            let cgImage = try await SCScreenshotManager.captureImage(contentFilter: filter, configuration: config)
+            let text = try await textRecognizer.recognize(image: cgImage)
+            guard !text.isEmpty else { return }
+
+            textBlocks.append(TextBlock(text: text, timestamp: Date()))
+
+            if autoCopyToClipboard {
+                NSPasteboard.general.clearContents()
+                NSPasteboard.general.setString(text, forType: .string)
+            }
+
+            if webSocketServer.isRunning {
+                webSocketServer.broadcast(text)
+            }
+        } catch {
+            logger.error("Quick scan error: \(error.localizedDescription)")
+        }
     }
 
     // MARK: - Frame Processing
